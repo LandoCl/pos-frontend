@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import Sidebar from "../components/Sidebar";
 
-export default function Layout() {
+function Layout() {
   return (
     <div className="flex min-h-screen bg-[#F5F0EB]">
       <Sidebar />
@@ -11,3 +11,5 @@ export default function Layout() {
     </div>
   );
 }
+
+export default Layout

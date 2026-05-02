@@ -11,4 +11,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    https: {
+      key: "poscacaovainilla-privateKey.key",
+      cert: "poscacaovainilla.crt",
+    },
+  },
 })
