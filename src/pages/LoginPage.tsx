@@ -1,9 +1,14 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { Navigate } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
 export default function LoginPage() {
-  const { loginWithRedirect, isLoading } = useAuth0();
+  const { loginWithRedirect, isLoading, isAuthenticated } = useAuth0();
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" />;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">

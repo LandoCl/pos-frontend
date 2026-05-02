@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
+import { useAuth0 } from "@auth0/auth0-react";
 import Layout from "./layouts/Layout";
 import AuthLayout from "./layouts/AuthLayout";
 import LoginPage from "./pages/LoginPage";
@@ -10,6 +11,15 @@ import OrdersPage from "./pages/OrdersPage";
 import UsersPage from "./pages/UsersPage";
 import ReportsPage from "./pages/ReportsPage";
 
+const RootRoute = () => {
+  const { isLoading, isAuthenticated } = useAuth0();
+  
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-[#F5F0EB]">Cargando...</div>;
+  }
+  
+  return isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />;
+};
 
 const AppRoutes = () => {
   return (
@@ -28,8 +38,8 @@ const AppRoutes = () => {
         <Route path="/reports" element={<ReportsPage />} />
       </Route>
 
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="*" element={<Navigate to="/login" />} />
+      <Route path="/" element={<RootRoute />} />
+      <Route path="*" element={<RootRoute />} />
     </Routes>
   );
 };

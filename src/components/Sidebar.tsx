@@ -9,20 +9,23 @@ import {
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
+import { useAuth0 } from "@auth0/auth0-react";
+
 const navItems = [
-  { label: "Dashboard",    href: "/dashboard", icon: LayoutDashboard },
-  { label: "Ventas",       href: "/pos",        icon: ShoppingCart },
-  { label: "Inventario",   href: "/products",   icon: Package },
-  { label: "Proveedores",  href: "/categories", icon: Truck },
-  { label: "Usuarios",     href: "/users",      icon: Users },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Ventas", href: "/pos", icon: ShoppingCart },
+  { label: "Inventario", href: "/products", icon: Package },
+  { label: "Proveedores", href: "/categories", icon: Truck },
+  { label: "Usuarios", href: "/users", icon: Users },
 ];
 
 export default function Sidebar() {
   const { pathname } = useLocation();
+  const { logout } = useAuth0();
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+    localStorage.removeItem("token"); // Opcional, por si tenías tokens locales
+    logout({ logoutParams: { returnTo: window.location.origin } });
   }
 
   return (
