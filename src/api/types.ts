@@ -3,3 +3,16 @@ export type User = {
   email: string
   username: string
 }
+
+export type UpdateUser = {
+  name: string
+  username: string
+  rol: string
+}
+
+export type CreateUserRequestType = {
+  email: string
+  name: string
+  username: string
+  rol: string
+}

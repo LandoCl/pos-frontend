@@ -29,20 +29,6 @@ export default function LoginPage() {
             >
               Iniciar sesión
             </Button>
-            <Button
-              onClick={() =>
-                loginWithRedirect({
-                  authorizationParams: {
-                    screen_hint: "signup",
-                  },
-                })
-              }
-              variant="outline"
-              className="w-full border-[#3B1F0E] text-[#3B1F0E] hover:bg-[#3B1F0E] hover:text-white"
-              disabled={isLoading}
-            >
-              Crear nueva cuenta
-            </Button>
           </div>
         </CardContent>
       </Card>
