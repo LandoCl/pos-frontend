@@ -1,3 +1,5 @@
+import { useGetUser } from "@/api/UserApi";
+
 interface Props {
   title: string;
 }
@@ -9,9 +11,10 @@ export default function PageHeader({ title }: Props) {
     year: "numeric",
   });
 
-  // Por ahora usamos datos dummy; después vendrán del contexto de auth
-  const userName = "Usuario Activo";
-  const role = "Admin";
+  const { data: user, isLoading } = useGetUser();
+
+  const userName = isLoading ? "Cargando..." : (user?.name || user?.username || "Usuario Activo");
+  const role = isLoading ? "..." : (user?.rol === "admin" ? "Administrador" : "Cajero");
 
   return (
     <div className="flex items-start justify-between mb-8">

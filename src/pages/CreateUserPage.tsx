@@ -22,16 +22,18 @@ export default function CreateUserPage() {
     };
 
     return (
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="space-y-6">
             <PageHeader title="Nuevo Usuario" />
 
-            <UserProfileForm
-                onSave={handleSave}
-                title="Registrar Usuario"
-                description="Ingresa los datos para registrar un nuevo usuario en el sistema."
-                buttonText="Crear usuario"
-                isCreating={true}
-            />
+            <div className="max-w-3xl mx-auto w-full">
+                <UserProfileForm
+                    onSave={handleSave}
+                    title="Registrar Usuario"
+                    description="Ingresa los datos para registrar un nuevo usuario en el sistema."
+                    buttonText="Crear usuario"
+                    isCreating={true}
+                />
+            </div>
         </div>
     );
 }

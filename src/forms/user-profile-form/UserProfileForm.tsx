@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
     email: z.string().optional(),
     name: z.string().min(4, { message: "El nombre es requerido" }),
     username: z.string().min(4, { message: "El usuario es requerido" }),
-    rol: z.enum(["Admin", "User"])
+    rol: z.enum(["admin", "cashier"])
 });
 
 export type UserFormData = z.infer<typeof formSchema>;
@@ -35,7 +36,7 @@ export default function UserProfileForm({
         defaultValues: {
             name: "",
             username: "",
-            rol: "User"
+            rol: "cashier"
         },
         resolver: zodResolver(formSchema)
     })
@@ -54,7 +55,7 @@ export default function UserProfileForm({
                         {description}
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6">
                     <FieldGroup>
                         <Controller name="email" control={form.control}
                             render={({ field, fieldState }) => (
@@ -81,7 +82,7 @@ export default function UserProfileForm({
                                         id="name"
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Teclea tu nombre"
-                                        className="bg-white mt-4" />
+                                        className="bg-white" />
                                     {fieldState.invalid && (
                                         <FieldError
                                             errors={[fieldState.error]} />
@@ -89,7 +90,7 @@ export default function UserProfileForm({
                                 </Field>
                             )} />
                     </FieldGroup>
-                    <div className="flex flex-col md:flex-row gap-4 mt-">
+                    <div className="flex flex-col md:flex-row gap-4">
                         <FieldGroup>
                             <Controller name="username" control={form.control}
                                 render={({ field, fieldState }) => (
@@ -99,7 +100,7 @@ export default function UserProfileForm({
                                             id="username"
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Teclea tu usuario"
-                                            className="bg-white mt-4" />
+                                            className="bg-white" />
                                         {fieldState.invalid && (
                                             <FieldError
                                                 errors={[fieldState.error]} />
@@ -112,11 +113,20 @@ export default function UserProfileForm({
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid} className="flex-1">
                                         <FieldLabel>Rol</FieldLabel>
-                                        <Input {...field}
+                                        <Select
+                                            defaultValue={field.value}
+                                            onValueChange={(value) => field.onChange(value)}
                                             id="rol"
                                             aria-invalid={fieldState.invalid}
-                                            placeholder="Teclea el rol del usuario"
-                                            className="bg-white mt-4" />
+                                        >
+                                            <SelectTrigger className="bg-white">
+                                                <SelectValue placeholder="Selecciona un rol" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="admin">Administrador</SelectItem>
+                                                <SelectItem value="cashier">Cajero</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                         {fieldState.invalid && (
                                             <FieldError
                                                 errors={[fieldState.error]} />
@@ -125,8 +135,8 @@ export default function UserProfileForm({
                                 )} />
                         </FieldGroup>
                     </div>
-                    <CardFooter>
-                        <Button type="submit" form="user-profile-form" className='bg-[#3B1F0E] hover:bg-[#5F3D1B] text-white'>
+                    <CardFooter className="px-0 pt-6 flex justify-end">
+                        <Button type="submit" form="user-profile-form" className='bg-[#3B1F0E] hover:bg-[#5F3D1B] text-white w-full md:w-auto'>
                             {buttonText}
                         </Button>
                     </CardFooter>
