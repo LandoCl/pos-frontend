@@ -10,14 +10,14 @@ import CategoriesPage from "./pages/CategoriesPage";
 import OrdersPage from "./pages/OrdersPage";
 import UsersPage from "./pages/UsersPage";
 import ReportsPage from "./pages/ReportsPage";
-
+import AuthCallBackPage from "./pages/AuthCallBackPage";
 const RootRoute = () => {
   const { isLoading, isAuthenticated } = useAuth0();
-  
+
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#F5F0EB]">Cargando...</div>;
   }
-  
+
   return isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />;
 };
 
@@ -26,6 +26,7 @@ const AppRoutes = () => {
     <Routes>
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth-callback" element={<AuthCallBackPage />} />
       </Route>
 
       <Route element={<Layout />}>

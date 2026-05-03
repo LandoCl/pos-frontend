@@ -1,4 +1,4 @@
-import { Auth0Provider, User, type AppState } from "@auth0/auth0-react"
+import { Auth0Provider, type AppState } from "@auth0/auth0-react"
 import { useNavigate } from "react-router";
 
 type Props = {
@@ -15,13 +15,14 @@ function Auth0ProviderWithNavigate({ children }: Props) {
         throw new Error('Error al inicializar Auth0')
     }
 
-    const onRedirectCallback = (appState?: AppState, user?: User) => {
-        console.log('User: ', user);
+    const onRedirectCallback = (appState?: AppState) => {
         let targetUrl = appState?.returnTo || "/dashboard";
         if (targetUrl === "/login" || targetUrl === "/") {
             targetUrl = "/dashboard";
         }
-        navigate(targetUrl);
+
+        // Redirigimos a la nueva página de callback, pasando la URL destino como state
+        navigate('/auth-callback', { state: { returnTo: targetUrl } });
     }
 
     return (
