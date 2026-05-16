@@ -1,5 +1,5 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-import type { User, UpdateUser, CreateUserRequestType } from "./types";
+import type { User, UpdateUser, CreateUserRequestType, AuthCallbackUserType } from "./types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth0 } from "@auth0/auth0-react";
 import { toast } from 'sonner';
@@ -60,6 +60,30 @@ export function useCreateUser() {
         }
     });
 }
+
+export function useRegisterUser() {
+    const queryClient = useQueryClient();
+    const { getAccessTokenSilently } = useAuth0();
+    const registerRequest = async (user: AuthCallbackUserType) => {
+        const accessToken = await getAccessTokenSilently();
+        const res = await fetch(API_BASE_URL + "/api/user", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + accessToken
+            },
+            body: JSON.stringify(user)
+        })
+        if (!res.ok) throw new Error('Error al registrar el usuario')
+        return res.json();
+    }
+    return useMutation({
+        mutationFn: (user: AuthCallbackUserType) => registerRequest(user),
+        onError: (err) => console.log(err),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['user'] })
+    });
+}
+
 export function useUpdateUser() {
     const queryClient = useQueryClient();
     const { getAccessTokenSilently } = useAuth0();
