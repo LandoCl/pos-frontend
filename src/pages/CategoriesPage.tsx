@@ -6,7 +6,7 @@ import PageHeader from "../components/PageHeader";
 import ProviderForm, { type BackEndProvider, type ProviderFormData } from '../forms/ProviderForms';
 
 // Ajusta el puerto y la ruta según tu backend (asumiendo que es /api/providers)
-const API_URL = "http://localhost:3000/api/provider"; 
+const API_URL = `${import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"}/api/provider`; 
 
 export default function ProvidersPage() {
   // 1. Extraemos la función de Auth0 para obtener el token

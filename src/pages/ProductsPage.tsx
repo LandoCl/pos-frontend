@@ -6,7 +6,7 @@ import PageHeader from "../components/PageHeader";
 import ProductForm, { type BackEndProduct, type ProductFormData } from '../forms/ProductsForm';
 
 // Apuntamos al puerto 4000 y a la ruta en plural "products"
-const API_URL = "http://localhost:3000/api/product"; 
+const API_URL = `${import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"}/api/product`; 
 
 export default function ProductsPage() {
   // 1. Extraemos la función de Auth0 para obtener el token
