@@ -1,50 +1,109 @@
 // src/pages/PosPage.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, ShoppingCart, Trash2, Printer } from "lucide-react";
 import { Input } from "../components/ui/input";
 import PageHeader from "../components/PageHeader";
-import type { Product, OrderItem } from "../types";
+import { useAuth0 } from "@auth0/auth0-react";
+import type { OrderItem } from "../types";
+import type { BackEndProduct } from "../forms/ProductsForm";
 
-//ejemplos de agregado, despues se tienen que reemplazar con la api
-const MOCK_PRODUCTS: Product[] = [
-  { _id: "1", name: "Café Americano",  price: 45,  stock: 20, available: true, category: "Bebidas" },
-  { _id: "2", name: "Cappuccino",      price: 55,  stock: 15, available: true, category: "Bebidas" },
-  { _id: "3", name: "Croissant",       price: 35,  stock: 10, available: true, category: "Panadería" },
-  { _id: "4", name: "Cheesecake",      price: 65,  stock: 8,  available: true, category: "Postres" },
-  { _id: "5", name: "Latte de vainilla", price: 60, stock: 12, available: true, category: "Bebidas" },
-];
+const API_URL = `${import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"}/api/product`;
 
 export default function PosPage() {
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<OrderItem[]>([]);
+  const [products, setProducts] = useState<BackEndProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { getAccessTokenSilently } = useAuth0();
 
-  const filteredProducts = MOCK_PRODUCTS.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const response = await fetch(API_URL, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
 
-  function addToCart(product: Product) {
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data.products || []);
+        } else {
+          console.error("Error al traer productos:", response.status);
+        }
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const filteredProducts = products.filter((p) => {
+    const term = search.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(term) ||
+      (p.code && p.code.toLowerCase().includes(term))
+    );
+  });
+
+  function addToCart(product: BackEndProduct) {
+    const existing = cart.find((item) => item.product === product._id);
+    if (existing && existing.quantity + 1 > product.stock) {
+      alert("No puedes exceder el inventario disponible.");
+      return;
+    }
+    if (!existing && product.stock <= 0) {
+      alert("No hay stock disponible de este producto.");
+      return;
+    }
+
     setCart((prev) => {
-      const existing = prev.find((item) => item.product === product._id);
-      if (existing) {
-        return prev.map((item) =>
-          item.product === product._id
+      const item = prev.find((i) => i.product === product._id);
+      if (item) {
+        return prev.map((i) =>
+          i.product === product._id
             ? {
-                ...item,
-                quantity: item.quantity + 1,
-                subtotal: (item.quantity + 1) * item.unitPrice,
+                ...i,
+                quantity: i.quantity + 1,
+                subtotal: (i.quantity + 1) * i.unitPrice,
               }
-            : item
+            : i
         );
       }
       return [
         ...prev,
         {
-          product: product._id,
+          product: product._id!,
           quantity: 1,
-          unitPrice: product.price,
-          subtotal: product.price,
+          unitPrice: product.sale_price,
+          subtotal: product.sale_price,
         },
       ];
+    });
+  }
+
+  function decrementCart(productId: string) {
+    setCart((prev) => {
+      const existing = prev.find((item) => item.product === productId);
+      if (existing && existing.quantity > 1) {
+        return prev.map((item) =>
+          item.product === productId
+            ? {
+                ...item,
+                quantity: item.quantity - 1,
+                subtotal: (item.quantity - 1) * item.unitPrice,
+              }
+            : item
+        );
+      }
+      return prev.filter((item) => item.product !== productId);
     });
   }
 
@@ -63,7 +122,7 @@ export default function PosPage() {
 
   // Obtiene el nombre del producto por id
   function getProductName(productId: string | object) {
-    const p = MOCK_PRODUCTS.find((p) => p._id === productId);
+    const p = products.find((p) => p._id === productId);
     return p ? p.name : "Producto";
   }
 
@@ -86,7 +145,7 @@ export default function PosPage() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
             />
             <Input
-              placeholder="Buscar productos..."
+              placeholder="Buscar productos por nombre o código..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 bg-gray-50 border-0 focus-visible:ring-1"
@@ -94,7 +153,9 @@ export default function PosPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-3">
-            {filteredProducts.length === 0 ? (
+            {isLoading ? (
+              <p className="text-center text-gray-400 py-12">Cargando productos...</p>
+            ) : filteredProducts.length === 0 ? (
               <p className="text-center text-gray-400 py-12">
                 No se encontraron productos
               </p>
@@ -103,14 +164,19 @@ export default function PosPage() {
                 <button
                   key={product._id}
                   onClick={() => addToCart(product)}
-                  className="w-full text-left border border-gray-200 rounded-xl px-5 py-4 hover:border-[#C4A882] hover:bg-[#FDF8F3] transition-all"
+                  className={`w-full text-left border border-gray-200 rounded-xl px-5 py-4 hover:border-[#C4A882] hover:bg-[#FDF8F3] transition-all ${product.stock <= 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                 >
-                  <p className="font-medium text-gray-800">{product.name}</p>
-                  <p className="text-[#3B1F0E] font-bold mt-0.5">
-                    ${product.price.toFixed(2)}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Stock: {product.stock}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-gray-800">{product.name}</p>
+                      <p className="text-xs text-gray-400 font-mono mt-0.5">#{product.code}</p>
+                    </div>
+                    <p className="text-[#3B1F0E] font-bold text-lg">
+                      ${product.sale_price.toFixed(2)}
+                    </p>
+                  </div>
+                  <p className={`text-xs mt-2 font-semibold ${product.stock > 0 ? "text-gray-500" : "text-red-500"}`}>
+                    {product.stock > 0 ? `Stock: ${product.stock}` : "Agotado"}
                   </p>
                 </button>
               ))
@@ -154,8 +220,28 @@ export default function PosPage() {
                       ${item.unitPrice.toFixed(2)}
                     </p>
                     <p className="text-white/50 text-xs">
-                      Cantidad: {item.quantity}
+                      Cantidad:
                     </p>
+                    <div className="flex items-center gap-3 mt-1 bg-black/20 rounded-lg w-max px-2 py-1">
+                      <button 
+                        onClick={() => decrementCart(String(item.product))}
+                        className="text-white hover:text-[#C4A882] px-1 font-bold"
+                      >
+                        -
+                      </button>
+                      <span className="text-white text-sm font-semibold w-4 text-center">
+                        {item.quantity}
+                      </span>
+                      <button 
+                        onClick={() => {
+                          const p = products.find(p => p._id === item.product);
+                          if (p) addToCart(p);
+                        }}
+                        className="text-white hover:text-[#C4A882] px-1 font-bold"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <span className="text-sm font-semibold">

@@ -1,5 +1,7 @@
 "use client"
+import { useEffect } from "react";
 import z from "zod";
+import type { User } from "@/api/types";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +25,7 @@ type Props = {
     description?: string;
     buttonText?: string;
     isCreating?: boolean;
+    currentUser?: UserFormData | User | null;
 }
 
 export default function UserProfileForm({
@@ -30,16 +33,30 @@ export default function UserProfileForm({
     title = "Datos del usuario",
     description = "Consulta y cambia las credenciales de tu cuenta",
     buttonText = "Guardar cambios",
-    isCreating = false
+    isCreating = false,
+    currentUser
 }: Props) {
     const form = useForm<UserFormData>({
         defaultValues: {
-            name: "",
-            username: "",
-            rol: "cashier"
+            email: currentUser?.email || "",
+            name: currentUser?.name || "",
+            username: currentUser?.username || "",
+            rol: (currentUser?.rol as "admin" | "cashier") || "cashier"
         },
         resolver: zodResolver(formSchema)
     })
+
+    useEffect(() => {
+        if (currentUser) {
+            form.reset({
+                email: currentUser.email || "",
+                name: currentUser.name || "",
+                username: currentUser.username || "",
+                rol: (currentUser.rol as "admin" | "cashier") || "cashier"
+            });
+        }
+    }, [currentUser, form]);
+
     function onSubmit(data: UserFormData) {
         onSave(data);
     }
