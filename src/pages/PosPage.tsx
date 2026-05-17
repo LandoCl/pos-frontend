@@ -70,10 +70,10 @@ export default function PosPage() {
         return prev.map((i) =>
           i.product === product._id
             ? {
-                ...i,
-                quantity: i.quantity + 1,
-                subtotal: (i.quantity + 1) * i.unitPrice,
-              }
+              ...i,
+              quantity: i.quantity + 1,
+              subtotal: (i.quantity + 1) * i.unitPrice,
+            }
             : i
         );
       }
@@ -96,10 +96,10 @@ export default function PosPage() {
         return prev.map((item) =>
           item.product === productId
             ? {
-                ...item,
-                quantity: item.quantity - 1,
-                subtotal: (item.quantity - 1) * item.unitPrice,
-              }
+              ...item,
+              quantity: item.quantity - 1,
+              subtotal: (item.quantity - 1) * item.unitPrice,
+            }
             : item
         );
       }
@@ -136,7 +136,7 @@ export default function PosPage() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSearch(val);
-    
+
     // Si la longitud es 13 (EAN-13), intentar agregarlo automáticamente
     if (val.length === 13) {
       const foundProduct = products.find(p => p.code === val);
@@ -151,8 +151,8 @@ export default function PosPage() {
     <div className="flex flex-col h-full">
       <PageHeader title="Ventas" />
 
-      <div className="flex gap-6 flex-1">
-        <div className="flex-1 bg-white rounded-2xl shadow-sm p-5 flex flex-col gap-4">
+      <div className="flex flex-col lg:flex-row gap-6 flex-1 overflow-hidden pb-4">
+        <div className="flex-1 bg-white rounded-2xl shadow-sm p-4 md:p-5 flex flex-col gap-4 overflow-hidden min-h-[50vh]">
           <div className="relative">
             <Search
               size={18}
@@ -201,8 +201,8 @@ export default function PosPage() {
           </div>
         </div>
 
-        <div className="w-80 bg-[#3B1F0E] rounded-2xl shadow-sm flex flex-col text-white">
-         
+        <div className="w-full lg:w-80 h-[50vh] lg:h-auto bg-[#3B1F0E] rounded-2xl shadow-sm flex flex-col text-white shrink-0">
+
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
             <div className="flex items-center gap-2 font-bold text-lg">
               <ShoppingCart size={20} />
@@ -217,7 +217,7 @@ export default function PosPage() {
             </button>
           </div>
 
-         
+
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
             {cart.length === 0 ? (
               <p className="text-center text-white/40 py-10 text-sm">
@@ -240,7 +240,7 @@ export default function PosPage() {
                       Cantidad:
                     </p>
                     <div className="flex items-center gap-3 mt-1 bg-black/20 rounded-lg w-max px-2 py-1">
-                      <button 
+                      <button
                         onClick={() => decrementCart(String(item.product))}
                         className="text-white hover:text-[#C4A882] px-1 font-bold"
                       >
@@ -249,7 +249,7 @@ export default function PosPage() {
                       <span className="text-white text-sm font-semibold w-4 text-center">
                         {item.quantity}
                       </span>
-                      <button 
+                      <button
                         onClick={() => {
                           const p = products.find(p => p._id === item.product);
                           if (p) addToCart(p);

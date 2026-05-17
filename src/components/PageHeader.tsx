@@ -17,7 +17,7 @@ export default function PageHeader({ title }: Props) {
   const role = isLoading ? "..." : (user?.rol === "admin" ? "Administrador" : "Cajero");
 
   return (
-    <div className="flex items-start justify-between mb-8">
+    <div className="flex flex-col md:flex-row md:items-center items-start justify-between mb-6 md:mb-8 gap-4">
       <div>
         <h1 className="text-4xl font-black text-[#3B1F0E] uppercase tracking-tight">
           {title}

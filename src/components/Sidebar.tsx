@@ -6,6 +6,7 @@ import {
   Truck,
   Users,
   LogOut,
+  X,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -19,7 +20,11 @@ const navItems = [
   { label: "Usuarios", href: "/users", icon: Users },
 ];
 
-export default function Sidebar() {
+type Props = {
+  onClose?: () => void;
+};
+
+export default function Sidebar({ onClose }: Props) {
   const { pathname } = useLocation();
   const { logout } = useAuth0();
 
@@ -31,11 +36,19 @@ export default function Sidebar() {
   return (
     <aside className="w-60 min-h-screen bg-[#3B1F0E] text-white flex flex-col">
       {/* Logo */}
-      <div className="px-6 py-8 border-b border-white/10 flex flex-col items-center gap-2">
+      <div className="px-6 py-8 border-b border-white/10 flex flex-col items-center gap-2 relative">
         <div className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center text-3xl">
           ☕
         </div>
-        <h1 className="text-base font-bold tracking-wide mt-1">Cacao & Vainilla</h1>
+        <h1 className="text-base font-bold tracking-wide mt-1 text-center">Cacao & Vainilla</h1>
+        {onClose && (
+          <button 
+            onClick={onClose} 
+            className="md:hidden absolute top-4 right-4 p-2 text-white/50 hover:text-white transition-colors"
+          >
+            <X size={20} />
+          </button>
+        )}
       </div>
 
       {/* Navegación */}
@@ -44,6 +57,7 @@ export default function Sidebar() {
           <Link
             key={href}
             to={href}
+            onClick={onClose}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
               pathname === href
