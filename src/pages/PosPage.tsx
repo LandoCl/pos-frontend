@@ -133,6 +133,20 @@ export default function PosPage() {
     clearCart();
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearch(val);
+    
+    // Si la longitud es 13 (EAN-13), intentar agregarlo automáticamente
+    if (val.length === 13) {
+      const foundProduct = products.find(p => p.code === val);
+      if (foundProduct) {
+        addToCart(foundProduct);
+        setSearch("");
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader title="Ventas" />
@@ -145,14 +159,15 @@ export default function PosPage() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
             />
             <Input
+              autoFocus
               placeholder="Buscar productos por nombre o código..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearchChange}
               className="pl-9 bg-gray-50 border-0 focus-visible:ring-1"
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3">
+          <div className="flex-1 overflow-y-auto">
             {isLoading ? (
               <p className="text-center text-gray-400 py-12">Cargando productos...</p>
             ) : filteredProducts.length === 0 ? (
@@ -160,26 +175,28 @@ export default function PosPage() {
                 No se encontraron productos
               </p>
             ) : (
-              filteredProducts.map((product) => (
-                <button
-                  key={product._id}
-                  onClick={() => addToCart(product)}
-                  className={`w-full text-left border border-gray-200 rounded-xl px-5 py-4 hover:border-[#C4A882] hover:bg-[#FDF8F3] transition-all ${product.stock <= 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
-                >
-                  <div className="flex justify-between items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pb-4">
+                {filteredProducts.map((product) => (
+                  <button
+                    key={product._id}
+                    onClick={() => addToCart(product)}
+                    className={`w-full text-left border border-gray-200 rounded-xl px-4 py-4 flex flex-col justify-between h-32 hover:border-[#C4A882] hover:bg-[#FDF8F3] transition-all ${product.stock <= 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                  >
                     <div>
-                      <p className="font-medium text-gray-800">{product.name}</p>
-                      <p className="text-xs text-gray-400 font-mono mt-0.5">#{product.code}</p>
+                      <p className="font-medium text-gray-800 line-clamp-2 leading-tight">{product.name}</p>
+                      <p className="text-xs text-gray-400 font-mono mt-1">#{product.code}</p>
                     </div>
-                    <p className="text-[#3B1F0E] font-bold text-lg">
-                      ${product.sale_price.toFixed(2)}
-                    </p>
-                  </div>
-                  <p className={`text-xs mt-2 font-semibold ${product.stock > 0 ? "text-gray-500" : "text-red-500"}`}>
-                    {product.stock > 0 ? `Stock: ${product.stock}` : "Agotado"}
-                  </p>
-                </button>
-              ))
+                    <div className="flex justify-between items-end w-full mt-2">
+                      <p className="text-[#3B1F0E] font-bold text-lg">
+                        ${product.sale_price.toFixed(2)}
+                      </p>
+                      <p className={`text-xs font-semibold ${product.stock > 0 ? "text-gray-500" : "text-red-500"}`}>
+                        {product.stock > 0 ? `Stock: ${product.stock}` : "Agotado"}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         </div>
